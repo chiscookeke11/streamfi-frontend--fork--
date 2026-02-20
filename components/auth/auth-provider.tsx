@@ -69,19 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const WALLET_CONNECTION_KEY = "stellar_last_wallet";
   const WALLET_AUTO_CONNECT_KEY = "stellar_auto_connect";
 
-  // One-time cleanup: remove old starknet_* keys (also done in providers.tsx before StarknetConfig; this is fallback)
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    try {
-      if (localStorage.getItem("starknet_last_wallet")) {
-        localStorage.removeItem("starknet_last_wallet");
-        localStorage.removeItem("starknet_auto_connect");
-      }
-    } catch {}
-  }, []);
-
   const setSessionCookies = (walletAddress: string) => {
     try {
       document.cookie = `wallet=${walletAddress}; path=/; max-age=${SESSION_TIMEOUT / 1000}; SameSite=Lax`;

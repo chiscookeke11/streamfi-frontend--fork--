@@ -18,46 +18,23 @@ import { ThemeProvider } from "@/contexts/theme-context";
 // Create a stable cache instance outside the component to ensure proper cache sharing
 const swrCache = new Map();
 
-/** Remove all localStorage keys starting with "starknet_" (Stellar migration). */
+/** One-time cleanup of old starknet_* keys for returning users (Stellar migration). */
 function StarknetKeyCleanup({ children }: { children: React.ReactNode }) {
-  const removeAllStarknetKeys = () => {
-    try {
-      const toRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith("starknet_")) {
-          toRemove.push(key);
-        }
-      }
-      toRemove.forEach(k => localStorage.removeItem(k));
-    } catch {
-      // ignore
-    }
-  };
-
   useEffect(() => {
-    removeAllStarknetKeys();
-    const t1 = setTimeout(removeAllStarknetKeys, 100);
-    const t2 = setTimeout(removeAllStarknetKeys, 400);
-    const t3 = setTimeout(removeAllStarknetKeys, 800);
-    const t4 = setTimeout(removeAllStarknetKeys, 1500);
-    const interval = setInterval(removeAllStarknetKeys, 300);
-    const stop = setTimeout(() => clearInterval(interval), 2000);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-      clearInterval(interval);
-      clearTimeout(stop);
+    const remove = () => {
+      try {
+        if (localStorage.getItem("starknet_last_wallet")) {
+          localStorage.removeItem("starknet_last_wallet");
+          localStorage.removeItem("starknet_auto_connect");
+        }
+      } catch {
+        // ignore
+      }
     };
+    remove();
+    const timer = setTimeout(remove, 500);
+    return () => clearTimeout(timer);
   }, []);
-
-  if (typeof window !== "undefined") {
-    try {
-      removeAllStarknetKeys();
-    } catch {}
-  }
   return <>{children}</>;
 }
 

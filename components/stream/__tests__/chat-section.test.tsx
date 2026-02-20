@@ -1,6 +1,5 @@
 import React from "react";
-import { render } from "@testing-library/react";
-import { screen } from "@testing-library/dom";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ChatSection from "../chat-section";
 import type { ChatMessage } from "@/types/chat";
@@ -110,9 +109,7 @@ describe("ChatSection", () => {
 
       const sendButton = screen
         .getAllByRole("button")
-        .find((btn: HTMLElement) =>
-          btn.querySelector("[data-testid='icon-Send']")
-        );
+        .find(btn => btn.querySelector("[data-testid='icon-Send']"));
       await user.click(sendButton!);
 
       expect(onSendMessage).toHaveBeenCalledWith("hello world");
