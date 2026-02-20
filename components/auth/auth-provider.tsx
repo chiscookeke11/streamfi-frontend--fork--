@@ -69,13 +69,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const WALLET_CONNECTION_KEY = "stellar_last_wallet";
   const WALLET_AUTO_CONNECT_KEY = "stellar_auto_connect";
 
-  // One-time cleanup: remove old starknet_* keys for returning users (Stellar migration)
+  // One-time cleanup: remove old starknet_* keys (also done in providers.tsx before StarknetConfig; this is fallback)
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem("starknet_last_wallet")) {
-      localStorage.removeItem("starknet_last_wallet");
-      localStorage.removeItem("starknet_auto_connect");
+    if (typeof window === "undefined") {
+      return;
     }
+    try {
+      if (localStorage.getItem("starknet_last_wallet")) {
+        localStorage.removeItem("starknet_last_wallet");
+        localStorage.removeItem("starknet_auto_connect");
+      }
+    } catch {}
   }, []);
 
   const setSessionCookies = (walletAddress: string) => {
@@ -312,9 +316,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage: {
             wallet: localStorage.getItem("wallet"),
             stellar_last_wallet: localStorage.getItem(WALLET_CONNECTION_KEY),
-            stellar_auto_connect: localStorage.getItem(
-              WALLET_AUTO_CONNECT_KEY
-            ),
+            stellar_auto_connect: localStorage.getItem(WALLET_AUTO_CONNECT_KEY),
           },
           sessionStorage: {
             wallet: sessionStorage.getItem("wallet"),

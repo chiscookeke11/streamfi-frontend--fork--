@@ -1,5 +1,6 @@
 "use client";
 import type React from "react";
+import { useEffect } from "react";
 import { SWRConfig } from "swr";
 import { sepolia, mainnet } from "@starknet-react/chains";
 import {
@@ -16,6 +17,49 @@ import { ThemeProvider } from "@/contexts/theme-context";
 
 // Create a stable cache instance outside the component to ensure proper cache sharing
 const swrCache = new Map();
+
+/** Remove all localStorage keys starting with "starknet_" (Stellar migration). */
+function StarknetKeyCleanup({ children }: { children: React.ReactNode }) {
+  const removeAllStarknetKeys = () => {
+    try {
+      const toRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("starknet_")) {
+          toRemove.push(key);
+        }
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    removeAllStarknetKeys();
+    const t1 = setTimeout(removeAllStarknetKeys, 100);
+    const t2 = setTimeout(removeAllStarknetKeys, 400);
+    const t3 = setTimeout(removeAllStarknetKeys, 800);
+    const t4 = setTimeout(removeAllStarknetKeys, 1500);
+    const interval = setInterval(removeAllStarknetKeys, 300);
+    const stop = setTimeout(() => clearInterval(interval), 2000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, []);
+
+  if (typeof window !== "undefined") {
+    try {
+      removeAllStarknetKeys();
+    } catch {}
+  }
+  return <>{children}</>;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const { connectors } = useInjectedConnectors({
@@ -41,17 +85,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
         provider: () => swrCache,
       }}
     >
-      <StarknetConfig
-        chains={[mainnet, sepolia]}
-        provider={publicProvider()}
-        connectors={connectors}
-        explorer={voyager}
-        autoConnect={true}
-      >
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
-      </StarknetConfig>
+      <StarknetKeyCleanup>
+        <StarknetConfig
+          chains={[mainnet, sepolia]}
+          provider={publicProvider()}
+          connectors={connectors}
+          explorer={voyager}
+          autoConnect={true}
+        >
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </StarknetConfig>
+      </StarknetKeyCleanup>
     </SWRConfig>
   );
 }
