@@ -64,7 +64,7 @@
     "mongoose": "^8.14.1",
     "motion": "^12.4.7",
     "next": "^16.1.6",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^8.0.1",
     "nprogress": "^0.2.0",
     "pg": "^8.15.6",
     "react": "^18",
