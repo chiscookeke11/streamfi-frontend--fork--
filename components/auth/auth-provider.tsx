@@ -65,9 +65,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // This ensures `user` and `isLoading` update in the SAME render cycle
   const user = swrUser !== undefined ? (swrUser ?? null) : localUser;
 
-  // Wallet connection persistence
-  const WALLET_CONNECTION_KEY = "starknet_last_wallet";
-  const WALLET_AUTO_CONNECT_KEY = "starknet_auto_connect";
+  // Wallet connection persistence (Stellar migration: was starknet_*)
+  const WALLET_CONNECTION_KEY = "stellar_last_wallet";
+  const WALLET_AUTO_CONNECT_KEY = "stellar_auto_connect";
+
+  // One-time cleanup: remove old starknet_* keys for returning users (Stellar migration)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem("starknet_last_wallet")) {
+      localStorage.removeItem("starknet_last_wallet");
+      localStorage.removeItem("starknet_auto_connect");
+    }
+  }, []);
 
   const setSessionCookies = (walletAddress: string) => {
     try {
@@ -84,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       "wallet=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
     localStorage.removeItem("wallet");
     sessionStorage.removeItem("wallet");
-    // Don't clear StarkNet auto-connect data - this breaks auto-connect
+    // Don't clear Stellar auto-connect data - this breaks auto-connect
     // localStorage.removeItem(WALLET_CONNECTION_KEY)
     // localStorage.removeItem(WALLET_AUTO_CONNECT_KEY)
   };
@@ -142,9 +151,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsWalletConnecting(false);
 
     if (isConnected && address) {
-      // Store the address for auto-connect - let StarkNet handle connector detection
-      localStorage.setItem("starknet_last_wallet", "auto");
-      localStorage.setItem("starknet_auto_connect", "true");
+      // Store the address for auto-connect
+      localStorage.setItem(WALLET_CONNECTION_KEY, "auto");
+      localStorage.setItem(WALLET_AUTO_CONNECT_KEY, "true");
       setSessionCookies(address);
       // SWR will automatically fetch user data via useUserProfile hook
     } else if (status === "disconnected") {
@@ -176,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Add a delay to ensure StarkNet provider is ready
+    // Add a delay to ensure wallet provider is ready
     const timer = setTimeout(initAuth, 500);
     return () => clearTimeout(timer);
   }, []);
@@ -302,9 +311,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         storageState: {
           localStorage: {
             wallet: localStorage.getItem("wallet"),
-            starknet_last_wallet: localStorage.getItem("starknet_last_wallet"),
-            starknet_auto_connect: localStorage.getItem(
-              "starknet_auto_connect"
+            stellar_last_wallet: localStorage.getItem(WALLET_CONNECTION_KEY),
+            stellar_auto_connect: localStorage.getItem(
+              WALLET_AUTO_CONNECT_KEY
             ),
           },
           sessionStorage: {

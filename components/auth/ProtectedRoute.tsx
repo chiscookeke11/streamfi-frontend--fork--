@@ -33,8 +33,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       }
 
       // Check if auto-connect is enabled and we should wait for it
-      const shouldAutoConnect = localStorage.getItem("starknet_auto_connect") === "true"
-      const lastWalletId = localStorage.getItem("starknet_last_wallet")
+      const shouldAutoConnect = localStorage.getItem("stellar_auto_connect") === "true"
+      const lastWalletId = localStorage.getItem("stellar_last_wallet")
 
       // If auto-connect is enabled and we haven't attempted it yet, wait a bit longer
       if (shouldAutoConnect && lastWalletId && !autoConnectAttempted && status === "disconnected") {
@@ -60,8 +60,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Handle redirection only if modal closes AND wallet is NOT connected AND auto-connect has been attempted
   useEffect(() => {
-    const shouldAutoConnect = localStorage.getItem("starknet_auto_connect") === "true"
-    const lastWalletId = localStorage.getItem("starknet_last_wallet")
+    const shouldAutoConnect = localStorage.getItem("stellar_auto_connect") === "true"
+    const lastWalletId = localStorage.getItem("stellar_last_wallet")
     
     if (hasCompletedInitialCheck && !showWalletModal && (!isConnected || !address) && 
         (autoConnectAttempted || !shouldAutoConnect || !lastWalletId)) {
