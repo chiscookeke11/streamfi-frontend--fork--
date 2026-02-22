@@ -25,7 +25,6 @@ export default function ConnectWalletModal({
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  // Close modal when wallet connects successfully
   useEffect(() => {
     if (isConnected && isModalOpen) {
       setIsModalOpen(false);
@@ -34,16 +33,18 @@ export default function ConnectWalletModal({
     }
   }, [isConnected, isModalOpen, setIsModalOpen]);
 
-  // Handle connection status changes
   useEffect(() => {
     if (status === "connecting") {
       setIsConnecting(true);
       setConnectionError(null);
     } else if (status === "disconnected" && isConnecting) {
-      setIsConnecting(false);
-      if (walletError) {
-        setConnectionError(walletError);
-      }
+      const timer = setTimeout(() => {
+        setIsConnecting(false);
+        setConnectionError(
+          walletError || "Connection failed. Please try again."
+        );
+      }, 2000);
+      return () => clearTimeout(timer);
     }
   }, [status, isConnecting, walletError]);
 
@@ -92,7 +93,6 @@ export default function ConnectWalletModal({
         className="relative w-full max-w-[329px] mx-auto bg-[#1D2027] rounded-[16px] py-4 px-[26px] min-h-[308px]"
         onClick={handleModalClick}
       >
-        {/* Close Button */}
         <button
           className={`absolute top-4 right-4 text-white hover:text-gray-300 transition-colors rounded-full bg-[#383838] w-[30px] h-[30px] justify-center items-center flex ${
             isConnecting ? "opacity-50 cursor-not-allowed" : ""
@@ -103,19 +103,16 @@ export default function ConnectWalletModal({
           <MdClose size={20} />
         </button>
 
-        {/* Title */}
         <h2 className="text-white text-lg font-semibold mt-0.5 mb-2 text-center">
           {isConnecting ? "Connecting..." : "Connect wallet"}
         </h2>
 
-        {/* Subtitle */}
         <p className="font-medium text-[14px] text-white mt-2 mb-[32px] text-center justify-center opacity-60">
           {isConnecting
             ? "Please approve the connection in your wallet"
             : "Authenticate using your preferred Stellar wallet to access dApp features"}
         </p>
 
-        {/* Connection Error */}
         {(connectionError || walletError) && (
           <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
             <p className="text-red-400 text-sm text-center">
@@ -124,7 +121,6 @@ export default function ConnectWalletModal({
           </div>
         )}
 
-        {/* Connect Button */}
         <div className="flex flex-col gap-4 mb-4">
           <button
             onClick={handleConnectClick}
@@ -137,14 +133,12 @@ export default function ConnectWalletModal({
           </button>
         </div>
 
-        {/* Loading indicator */}
         {isConnecting && (
           <div className="flex justify-center mb-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
           </div>
         )}
 
-        {/* Terms */}
         <p className="text-[#FFFFFF99] font-[400] text-center text-sm mt-4">
           By continuing, you agree to our{" "}
           <a href="#" className="text-white underline underline-offset-1">

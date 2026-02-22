@@ -7,3 +7,4 @@
 if [ $? -eq 0 ]; then
   npx --no -- commitlint --edit $1
 fi
+npx --no -- commitlint --edit \$1

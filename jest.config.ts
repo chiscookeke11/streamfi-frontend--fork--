@@ -3,7 +3,6 @@
  * https://jestjs.io/docs/configuration
  */
 
-import type { Config } from "jest";
 import nextJest from "next/jest.js";
 
 const createJestConfig = nextJest({
@@ -11,7 +10,7 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config: Config = {
+const config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -82,10 +81,13 @@ const config: Config = {
   // Test environment
   testEnvironment: "jsdom",
 
-  // Transform files
+  // Transform files - include ESM-only packages like lucide-react
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
   },
+
+  // Allow transforming ESM-only node_modules that Jest can't parse as-is
+  transformIgnorePatterns: ["/node_modules/(?!(lucide-react|@mux)/)"],
 
   // Module name mapping
   moduleNameMapper: {
@@ -94,6 +96,8 @@ const config: Config = {
     "^@/lib/(.*)$": "<rootDir>/lib/$1",
     "^@/utils/(.*)$": "<rootDir>/utils/$1",
     "^@/hooks/(.*)$": "<rootDir>/hooks/$1",
+    // Mock ESM-only packages that Babel can't transform
+    "^lucide-react$": "<rootDir>/__mocks__/lucide-react.js",
   },
 
   // A path to a custom dependency extractor
@@ -248,4 +252,5 @@ const config: Config = {
   // watchman: true,
 };
 
+// @ts-expect-error - Next.js Jest config typing issue
 export default createJestConfig(config);

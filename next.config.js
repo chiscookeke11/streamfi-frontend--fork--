@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ["*.ngrok-free.app"],
   images: {
     remotePatterns: [
       {
@@ -17,6 +18,12 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "picsum.photos",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
         port: "",
         pathname: "/**",
       },

@@ -23,36 +23,30 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     const checkAccess = () => {
-      // Don't do anything while the auth system is initializing or wallet is connecting
       if (isInitializing || isWalletConnecting) {
         return;
       }
 
-      // Mark that we've completed the initial check
       if (!hasCompletedInitialCheck) {
         setHasCompletedInitialCheck(true);
       }
 
-      // Check if auto-connect is enabled and we should wait for it
       const shouldAutoConnect =
         localStorage.getItem("stellar_auto_connect") === "true";
       const lastWalletId = localStorage.getItem("stellar_last_wallet");
 
-      // If auto-connect is enabled and we haven't attempted it yet, wait a bit longer
       if (
         shouldAutoConnect &&
         lastWalletId &&
         !autoConnectAttempted &&
         status === "disconnected"
       ) {
-        // Set a timeout to give auto-connect more time
         setTimeout(() => {
           setAutoConnectAttempted(true);
-        }, 3000); // Wait 3 seconds for auto-connect
+        }, 3000);
         return;
       }
 
-      // Only after initialization is complete and auto-connect has been attempted, check wallet connection
       if (
         hasCompletedInitialCheck &&
         (autoConnectAttempted || !shouldAutoConnect || !lastWalletId)
@@ -60,7 +54,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         if (!isConnected || !address) {
           setShowWalletModal(true);
         } else {
-          setShowWalletModal(false); // Ensure modal is closed if wallet connects
+          setShowWalletModal(false);
         }
       }
     };
@@ -76,7 +70,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     autoConnectAttempted,
   ]);
 
-  // Handle redirection only if modal closes AND wallet is NOT connected AND auto-connect has been attempted
   useEffect(() => {
     const shouldAutoConnect =
       localStorage.getItem("stellar_auto_connect") === "true";
@@ -99,7 +92,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     router,
   ]);
 
-  // Show loading state during initialization or wallet connection
   if (isInitializing || isWalletConnecting || !hasCompletedInitialCheck) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -115,7 +107,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Show wallet connect modal if needed (only after initialization is complete)
   if (showWalletModal) {
     return (
       <ConnectWalletModal
@@ -125,7 +116,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Only render children if wallet is connected
   if (!isConnected || !address) {
     return null;
   }

@@ -173,7 +173,7 @@ const UserDropdown = ({ username, avatar, onLinkClick }: UserDropdownProps) => {
         {
           icon: <Settings size={20} />,
           label: "Settings",
-          route: "/settings",
+          route: "/settings/profile",
           mobile: true,
         },
       ],
