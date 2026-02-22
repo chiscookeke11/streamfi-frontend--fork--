@@ -7,12 +7,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SearchResult } from "@/types/explore";
-import { useAccount, useDisconnect } from "@starknet-react/core";
 import { useAuth } from "@/components/auth/auth-provider";
 import ConnectModal from "../connectWallet";
 import ProfileModal from "./ProfileModal";
 import Avatar from "@/public/Images/user.png";
 import ProfileDropdown from "../ui/profileDropdown";
+import { useWallet } from 'stellar-wallet-kit';
 
 interface NavbarProps {
   onConnectWallet?: () => void;
@@ -32,9 +32,8 @@ export default function Navbar({}: NavbarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { account, isConnected, disconnect } = useWallet();
   const { user, isLoading: authLoading } = useAuth();
-  const { disconnect } = useDisconnect();
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
@@ -43,6 +42,7 @@ export default function Navbar({}: NavbarProps) {
   >("profile");
   const [isLoading, setIsLoading] = useState(true);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const publicKey = account?.address
 
   // Get display name from user data or fallback to address
   const getDisplayName = useCallback(() => {
@@ -65,12 +65,12 @@ export default function Navbar({}: NavbarProps) {
       }
     }
 
-    if (address) {
-      return `${address.substring(0, 6)}...${address.slice(-4)}`;
+    if (publicKey) {
+      return `${publicKey.substring(0, 6)}...${publicKey.slice(-4)}`;
     }
 
     return "Unknown User";
-  }, [user?.username, address]);
+  }, [user?.username, publicKey]);
 
   // Returns either the placeholder, username, or sliced address
   const renderDisplayName = () => {
@@ -103,8 +103,8 @@ export default function Navbar({}: NavbarProps) {
     }
 
     // Fallback to sliced address
-    if (address) {
-      return `${address.substring(0, 6)}...${address.slice(-4)}`;
+    if (publicKey) {
+      return `${publicKey.slice(0, 6)}...${publicKey.slice(-4)}`;
     }
 
     // If all else fails
@@ -145,7 +145,7 @@ export default function Navbar({}: NavbarProps) {
   // Reset profile check flag when wallet address changes
   useEffect(() => {
     setHasCheckedProfile(false);
-  }, [address]);
+  }, [publicKey]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -244,7 +244,7 @@ export default function Navbar({}: NavbarProps) {
     }
 
     // Not connected — just stop the loading indicator
-    if (!isConnected || !address) {
+    if (!isConnected || !publicKey) {
       setIsLoading(false);
       return;
     }
@@ -268,7 +268,7 @@ export default function Navbar({}: NavbarProps) {
     }
 
     setIsLoading(false);
-  }, [isConnected, address, authLoading, user, hasCheckedProfile]);
+  }, [isConnected, publicKey, authLoading, user, hasCheckedProfile]);
 
   // Close modal automatically when wallet is connected
   useEffect(() => {
@@ -370,7 +370,7 @@ export default function Navbar({}: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          {isConnected && address && (
+          {isConnected && publicKey && (
             <>
               {/* Bell icon - only show when not loading */}
               {!isLoading && (
