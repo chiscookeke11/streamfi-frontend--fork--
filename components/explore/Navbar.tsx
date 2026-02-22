@@ -11,7 +11,7 @@ import { useAccount, useDisconnect } from "@starknet-react/core";
 import { useAuth } from "@/components/auth/auth-provider";
 import ConnectModal from "../connectWallet";
 import ProfileModal from "./ProfileModal";
-import Avatar from "@/public/Images/user.png";
+import { Avatar } from "@/public/Images";
 import ProfileDropdown from "../ui/profileDropdown";
 
 interface NavbarProps {
@@ -213,6 +213,40 @@ export default function Navbar({}: NavbarProps) {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleProfileDisplayModal = useCallback(async () => {
+    if (!address) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/users/wallet/${address}`);
+
+      if (response.status === 404) {
+        setProfileModalOpen(true);
+      } else if (response.ok) {
+        const result = await response.json();
+        console.log("User found:", result);
+
+        // Store the entire user object in sessionStorage
+        sessionStorage.setItem("userData", JSON.stringify(result.user));
+        sessionStorage.setItem("username", result.user?.username);
+
+        // Refresh user in auth context if needed
+        if (!user || user.wallet !== result.user.wallet) {
+          await refreshUser(address);
+        }
+      }
+    } catch (error) {
+      console.error("Error finding user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [address, user, refreshUser]);
+
+>>>>>>> 58c5a8f84ce15619ba82180c284a5cd256d32792
   // Toggle profile dropdown
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
