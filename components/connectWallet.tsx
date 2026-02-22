@@ -2,10 +2,9 @@
 
 import type React from "react";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { MdClose } from "react-icons/md";
-import { useConnect, useAccount } from "@starknet-react/core";
+import { useStellarWallet } from "@/contexts/stellar-wallet-context";
 
 interface ConnectModalProps {
   isModalOpen: boolean;
@@ -16,10 +15,13 @@ export default function ConnectWalletModal({
   isModalOpen,
   setIsModalOpen,
 }: ConnectModalProps) {
-  const { connect, connectors } = useConnect();
-  const { isConnected, status } = useAccount();
+  const {
+    connect,
+    isConnected,
+    status,
+    error: walletError,
+  } = useStellarWallet();
 
-  const [selectedWallet, setSelectedWallet] = useState(connectors?.[0] || null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -39,10 +41,11 @@ export default function ConnectWalletModal({
       setConnectionError(null);
     } else if (status === "disconnected" && isConnecting) {
       setIsConnecting(false);
-      setConnectionError("Connection failed. Please try again.");
-      console.log("[ConnectWalletModal] Disconnected, resetting state");
+      if (walletError) {
+        setConnectionError(walletError);
+      }
     }
-  }, [status, isConnecting]);
+  }, [status, isConnecting, walletError]);
 
   const handleOverlayClick = () => {
     if (!isConnecting) {
@@ -55,17 +58,15 @@ export default function ConnectWalletModal({
     e.stopPropagation();
   };
 
-  const handleWalletClick = async (wallet: (typeof connectors)[0]) => {
-    if (isConnecting) return;
+  const handleConnectClick = async () => {
+    if (isConnecting) {
+      return;
+    }
 
     try {
-      setSelectedWallet(wallet);
       setIsConnecting(true);
       setConnectionError(null);
-
-      await connect({ connector: wallet });
-      
-      // The AuthProvider will automatically detect and store the active connector
+      await connect();
     } catch (error) {
       console.error("[ConnectWalletModal] Connection error:", error);
       setConnectionError("Failed to connect wallet. Please try again.");
@@ -111,46 +112,29 @@ export default function ConnectWalletModal({
         <p className="font-medium text-[14px] text-white mt-2 mb-[32px] text-center justify-center opacity-60">
           {isConnecting
             ? "Please approve the connection in your wallet"
-            : "Authenticate using your preferred wallet to access dApp features"}
+            : "Authenticate using your preferred Stellar wallet to access dApp features"}
         </p>
 
         {/* Connection Error */}
-        {connectionError && (
+        {(connectionError || walletError) && (
           <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
             <p className="text-red-400 text-sm text-center">
-              {connectionError}
+              {connectionError || walletError}
             </p>
           </div>
         )}
 
-        {/* Wallet List */}
-        <div className="flex flex-row gap-[7px] rounded-[20px] bg-[#FFFFFF1A] p-[10px] justify-center mb-4">
-          {connectors.map(wallet => (
-            <div key={wallet.id} onClick={() => handleWalletClick(wallet)}>
-              <button
-                className={`w-[80px] h-[80px] bg-[#1D2027] rounded-[16px] flex items-center justify-center p-3 text-white transition-all duration-200 ${
-                  isConnecting && selectedWallet?.id === wallet.id
-                    ? "bg-[#393B3D] opacity-75 cursor-not-allowed animate-pulse"
-                    : isConnecting
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-[#393B3D] cursor-pointer"
-                }`}
-                disabled={isConnecting}
-              >
-                <Image
-                  src={
-                    typeof wallet.icon === "object"
-                      ? wallet.icon.dark || wallet.icon.light
-                      : wallet.icon
-                  }
-                  alt={wallet.name || "Unknown Wallet"}
-                  height={40}
-                  width={40}
-                  className="object-contain"
-                />
-              </button>
-            </div>
-          ))}
+        {/* Connect Button */}
+        <div className="flex flex-col gap-4 mb-4">
+          <button
+            onClick={handleConnectClick}
+            disabled={isConnecting}
+            className={`w-full py-4 bg-highlight hover:bg-highlight/80 text-background rounded-[16px] font-semibold transition-all duration-200 ${
+              isConnecting ? "opacity-50 cursor-not-allowed animate-pulse" : ""
+            }`}
+          >
+            {isConnecting ? "Waiting for Wallet..." : "Select Stellar Wallet"}
+          </button>
         </div>
 
         {/* Loading indicator */}
@@ -161,7 +145,7 @@ export default function ConnectWalletModal({
         )}
 
         {/* Terms */}
-        <p className="text-[#FFFFFF99] font-[400] text-center text-sm">
+        <p className="text-[#FFFFFF99] font-[400] text-center text-sm mt-4">
           By continuing, you agree to our{" "}
           <a href="#" className="text-white underline underline-offset-1">
             Terms of Service

@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Settings, User, Wallet } from "lucide-react";
-import { useAccount } from "@starknet-react/core";
-import { useState, useEffect, useCallback } from "react";
+import { useStellarWallet } from "@/contexts/stellar-wallet-context";
+import { useState, useEffect, useCallback, type ElementType } from "react";
 import ConnectModal from "../connectWallet";
 
 interface QuickActionItem {
-  icon: React.ElementType;
+  icon: ElementType;
   label: string;
   href: string;
   type: "link" | "action";
@@ -17,7 +17,7 @@ interface QuickActionItem {
 
 export default function QuickActions() {
   const pathname = usePathname();
-  const { address, isConnected } = useAccount();
+  const { publicKey: address, isConnected } = useStellarWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -25,7 +25,9 @@ export default function QuickActions() {
     setIsModalOpen(true);
   };
   const handleProfileDisplayModal = useCallback(() => {
-    if (!address) return;
+    if (!address) {
+      return;
+    }
 
     fetch(`/api/users/wallet/${address}`)
       .then(async res => {
@@ -65,7 +67,9 @@ export default function QuickActions() {
     route => pathname === route || pathname.startsWith(`${route}/`)
   );
 
-  if (!shouldShowQuickActions) return null;
+  if (!shouldShowQuickActions) {
+    return null;
+  }
   const quickActionItems: QuickActionItem[] = [
     { icon: Home, label: "Home", href: "/explore", type: "link" },
     { icon: Search, label: "Search", href: "/browse", type: "link" },
@@ -80,7 +84,9 @@ export default function QuickActions() {
       : { icon: Wallet, label: "Connect", href: "#", type: "action" },
   ];
 
-  if (!shouldShowQuickActions) return null;
+  if (!shouldShowQuickActions) {
+    return null;
+  }
 
   return (
     <>
