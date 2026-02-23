@@ -169,9 +169,24 @@ export default function Navbar({}: NavbarProps) {
     if (isConnected) setIsModalOpen(false);
   }, [isConnected]);
 
+
+
+  // Function to check for cloudinary URL
+  function isCloudinaryUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.endsWith("cloudinary.com");
+  } catch {
+    return false; // invalid URLs are rejected
+  }
+}
+
+
   const userAvatar = getAvatar();
   const displayName = getDisplayName();
   const truncatedDisplayName = displayName.length > 12 ? displayName.slice(0, 12) : displayName;
+
+
 
   return (
     <>
@@ -248,7 +263,7 @@ export default function Navbar({}: NavbarProps) {
                   {!isLoading ? (
                     <>
                       <span className="text-foreground hidden sm:flex truncate">{displayName}</span>
-                      {typeof userAvatar === "string" && userAvatar.includes("cloudinary.com") ? (
+                      {typeof userAvatar === "string" && isCloudinaryUrl(userAvatar) ? (
                         <img src={userAvatar} alt="Avatar" className="w-8 h-8 sm:w-6 sm:h-6 rounded-full object-cover" />
                       ) : (
                         <Image src={Avatar} alt="Avatar" width={32} height={32} className="rounded-full" />
