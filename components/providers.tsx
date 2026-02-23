@@ -9,24 +9,6 @@ import { StellarWalletProvider } from "@/contexts/stellar-wallet-context";
 
 const swrCache = new Map();
 
-function StarknetKeyCleanup({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    const remove = () => {
-      try {
-        if (localStorage.getItem("starknet_last_wallet")) {
-          localStorage.removeItem("starknet_last_wallet");
-          localStorage.removeItem("starknet_auto_connect");
-        }
-      } catch {
-        // ignore
-      }
-    };
-    remove();
-    const timer = setTimeout(remove, 500);
-    return () => clearTimeout(timer);
-  }, []);
-  return <>{children}</>;
-}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -39,13 +21,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
         provider: () => swrCache,
       }}
     >
-      <StarknetKeyCleanup>
+      <ThemeProvider>
         <StellarWalletProvider>
-          <ThemeProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </StellarWalletProvider>
-      </StarknetKeyCleanup>
+      </ThemeProvider>
     </SWRConfig>
   );
 }
