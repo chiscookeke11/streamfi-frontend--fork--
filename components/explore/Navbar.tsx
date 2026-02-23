@@ -172,12 +172,14 @@ export default function Navbar({}: NavbarProps) {
 
 
   // Function to check for cloudinary URL
-  function isCloudinaryUrl(url: string): boolean {
+const ALLOWED_CLOUDINARY_HOST = "res.cloudinary.com"; // replace with Cloudinary domain
+
+function isCloudinaryUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return parsed.hostname.endsWith("cloudinary.com");
+    return parsed.hostname === ALLOWED_CLOUDINARY_HOST;
   } catch {
-    return false; // invalid URLs are rejected
+    return false;
   }
 }
 
