@@ -1,4 +1,5 @@
 "use client";
+
 import type React from "react";
 import { useEffect } from "react";
 import { SWRConfig } from "swr";
@@ -7,6 +8,7 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import { StellarWalletProvider } from "@/contexts/stellar-wallet-context";
 
 const swrCache = new Map();
+
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
