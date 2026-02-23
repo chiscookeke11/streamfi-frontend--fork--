@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useStellarWallet } from "@/contexts/stellar-wallet-context";
-import { User, UserUpdateInput } from "@/types/user";
+import type { User, UserUpdateInput } from "@/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
 const SESSION_TIMEOUT = 24 * 60 * 60 * 1000;
@@ -50,14 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const mountTime = useRef(Date.now());
 
   const router = useRouter();
-  const { publicKey: address, isConnected, status, disconnect } =
+  const { address, isConnected, disconnect, isLoading: isStellarLoading } =
     useStellarWallet();
 
   const {
     user: swrUser,
     isLoading: swrLoading,
     mutate: mutateUser,
-  } = useUserProfile(address || undefined);
+  } = useUserProfile(address ?? undefined);
 
   const user = swrUser !== undefined ? (swrUser ?? null) : localUser;
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [swrUser, address]);
 
   const logout = () => {
-    disconnect();
+    void disconnect();
     setLocalUser(null);
     clearAllData();
     sessionStorage.removeItem("username");
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (status === "connecting") {
+    if (isStellarLoading) {
       setIsWalletConnecting(true);
       return;
     }
@@ -127,11 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(WALLET_CONNECTION_KEY, "auto");
       localStorage.setItem(WALLET_AUTO_CONNECT_KEY, "true");
       setSessionCookies(address);
-    } else if (status === "disconnected") {
+    } else if (!isConnected) {
       setLocalUser(null);
-      clearUserData(address);
+      clearUserData(address ?? undefined);
     }
-  }, [isConnected, address, status]);
+  }, [isConnected, address, isStellarLoading]);
 
   useEffect(() => {
     const initAuth = () => {
@@ -185,9 +185,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isConnected && address) {
         setIsInitializing(false);
         setHasInitialized(true);
-      } else if (status === "disconnected" && !isWalletConnecting) {
+      } else if (!isConnected && !isStellarLoading && !isWalletConnecting) {
         const timeSinceMount = Date.now() - mountTime.current;
-        if (timeSinceMount > 10000) {
+        const maxAutoConnectTime = 10000;
+
+        if (timeSinceMount > maxAutoConnectTime) {
           setIsInitializing(false);
           setHasInitialized(true);
         }
@@ -207,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [
     isConnected,
     address,
-    status,
+    isStellarLoading,
     isWalletConnecting,
     hasInitialized,
     isInitializing,

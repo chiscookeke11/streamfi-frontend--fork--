@@ -14,7 +14,11 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
-  const { publicKey: address, isConnected, status } = useStellarWallet();
+  const {
+    address,
+    isConnected,
+    isLoading: isStellarLoading,
+  } = useStellarWallet();
   const { isInitializing, isWalletConnecting } = useAuth();
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [hasCompletedInitialCheck, setHasCompletedInitialCheck] =
@@ -39,7 +43,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         shouldAutoConnect &&
         lastWalletId &&
         !autoConnectAttempted &&
-        status === "disconnected"
+        !isConnected &&
+        !isStellarLoading
       ) {
         setTimeout(() => {
           setAutoConnectAttempted(true);
@@ -63,7 +68,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [
     isConnected,
     address,
-    status,
+    isStellarLoading,
     isInitializing,
     isWalletConnecting,
     hasCompletedInitialCheck,

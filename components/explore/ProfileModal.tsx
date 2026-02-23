@@ -40,7 +40,8 @@ export default function ProfileModal({
 
   // Router and wallet
   const router = useRouter();
-  const { publicKey: address } = useStellarWallet();
+  const { address } = useStellarWallet();
+  const { address } = useStellarWallet();
 
   // Verification code state
   const [verificationCode, setVerificationCode] = useState([

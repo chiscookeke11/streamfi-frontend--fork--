@@ -18,7 +18,7 @@ interface QuickActionItem {
 
 export default function QuickActions() {
   const pathname = usePathname();
-  const { publicKey: address, isConnected } = useStellarWallet();
+  const { address, isConnected } = useStellarWallet();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { user } = useUserProfile(address || undefined);

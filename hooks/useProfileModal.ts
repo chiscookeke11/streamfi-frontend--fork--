@@ -1,14 +1,13 @@
 // hooks/useProfileModal.ts
 
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useStellarWallet } from "@/contexts/stellar-wallet-context";
 
 export function useProfileModal(
   onNextStep: (step: "profile" | "verify" | "success") => void,
   refreshUser?: () => Promise<unknown>
 ) {
-  const { publicKey: address } = useStellarWallet();
+  const { address } = useStellarWallet();
   void refreshUser;
 
   const [displayName, setDisplayName] = useState("");
