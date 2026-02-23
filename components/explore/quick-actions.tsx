@@ -23,7 +23,7 @@ export default function QuickActions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use SWR hook for optimized data fetching with caching
-  const { user } = useUserProfile(address);
+  const { user } = useUserProfile(address || "");
   const username = user?.username || "";
 
   const handleConnectWallet = () => {
@@ -61,11 +61,11 @@ export default function QuickActions() {
     { icon: Settings, label: "Settings", href: "/settings", type: "link" },
     isConnected && address
       ? {
-          icon: User,
-          label: "Profile",
-          href: username ? `/${username}` : "/profile",
-          type: "link",
-        }
+        icon: User,
+        label: "Profile",
+        href: username ? `/${username}` : "/profile",
+        type: "link",
+      }
       : { icon: Wallet, label: "Connect", href: "#", type: "action" },
   ];
 
@@ -104,11 +104,10 @@ export default function QuickActions() {
               <Link
                 key={`${item.label}-${index}`}
                 href={item.href}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 ${
-                  isActive
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 ${isActive
                     ? "text-foreground bg-background"
                     : "text-white/60 hover:text-white hover:bg-[#2D2F31]/40"
-                }`}
+                  }`}
               >
                 <item.icon size={20} className="mb-1" />
                 <span className="text-xs font-medium">{item.label}</span>
