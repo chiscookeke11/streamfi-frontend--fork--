@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useEffect } from "react";
 import { SWRConfig } from "swr";
 import { AuthProvider } from "./auth/auth-provider";
 import { ThemeProvider } from "@/contexts/theme-context";
@@ -21,13 +20,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         provider: () => swrCache,
       }}
     >
-      <ThemeProvider>
-        <StellarWalletProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </StellarWalletProvider>
-      </ThemeProvider>
+      <StellarWalletProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
+      </StellarWalletProvider>
     </SWRConfig>
   );
 }
