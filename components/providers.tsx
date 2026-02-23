@@ -1,4 +1,5 @@
 "use client";
+
 import type React from "react";
 import { useEffect } from "react";
 import { SWRConfig } from "swr";
@@ -8,7 +9,6 @@ import { StellarWalletProvider } from "@/contexts/stellar-wallet-context";
 
 const swrCache = new Map();
 
-/** One-time cleanup of old starknet_* keys for returning users (Stellar migration). */
 function StarknetKeyCleanup({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const remove = () => {
@@ -39,13 +39,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
         provider: () => swrCache,
       }}
     >
-      <ThemeProvider>
+      <StarknetKeyCleanup>
         <StellarWalletProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
         </StellarWalletProvider>
-      </ThemeProvider>
+      </StarknetKeyCleanup>
     </SWRConfig>
   );
 }
