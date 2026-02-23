@@ -209,7 +209,7 @@ const ViewStream = ({
   const overlayScrollRef = useRef<HTMLDivElement>(null);
   const overlayInputRef = useRef<HTMLInputElement>(null);
 
-  const { address, isConnected } = useStellarWallet();
+  const { publicKey: address, isConnected } = useStellarWallet();
   const {
     messages: chatMessages,
     sendMessage,
@@ -789,3 +789,4 @@ const ViewStream = ({
 };
 
 export default ViewStream;
+
