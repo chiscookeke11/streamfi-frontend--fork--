@@ -33,7 +33,6 @@ export default function Navbar({}: NavbarProps) {
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { address, isConnected, disconnect } = useStellarWallet();
-  const { address, isConnected, disconnect } = useStellarWallet();
   const { user, isLoading: authLoading } = useAuth();
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);

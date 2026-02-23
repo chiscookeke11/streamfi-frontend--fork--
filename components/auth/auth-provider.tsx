@@ -124,7 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsWalletConnecting(false);
 
     if (isConnected && address) {
-      localStorage.setItem(WALLET_CONNECTION_KEY, "auto");
       localStorage.setItem(WALLET_AUTO_CONNECT_KEY, "true");
       setSessionCookies(address);
     } else if (!isConnected) {
@@ -239,7 +238,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const events = ["mousemove", "keydown", "click", "scroll"];
+    const events = [
+      "mousemove",
+      "keydown",
+      "click",
+      "scroll",
+      "visibilitychange",
+    ];
     events.forEach(event => {
       window.addEventListener(event, handleUserActivity);
     });
